@@ -10,7 +10,7 @@
 
   <select [(ngModel)]="newExerciseMuscleGroup" name="muscleGroup">
     <option value="" disabled selected>Select muscle group</option>
-    @for (group of muscleGroups; track group) {
+    @for (group of workoutData.muscleGroups; track group) {
       <option [value]="group">{{ group }}</option>
     }
   </select>
@@ -24,7 +24,7 @@
 </form>
 
 <ul>
-  @for (exercise of exercises; track exercise.id) {
+  @for (exercise of workoutData.exercises(); track exercise.id) {
     <li>
       <strong>{{ exercise.name }}</strong> — {{ exercise.muscleGroup }}
     </li>

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Exercise } from '../../models/exercise';
+import { WorkoutDataService } from '../../services/workout-data';
 
 @Component({
   selector: 'app-exercise-library',
@@ -9,14 +9,7 @@ import { Exercise } from '../../models/exercise';
   styleUrl: './exercise-library.css'
 })
 export class ExerciseLibraryComponent {
-  muscleGroups = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Full body', 'Cardio'];
-
-  exercises: Exercise[] = [
-    { id: '1', name: 'Bench Press', muscleGroup: 'Chest', defaultUnit: 'kg', description: '', difficultyLevel: 'Beginner', equipmentUsed: [] },
-    { id: '2', name: 'Squat', muscleGroup: 'Legs', defaultUnit: 'kg', description: '', difficultyLevel: 'Beginner', equipmentUsed: [] },
-    { id: '3', name: 'Lat Pulldown', muscleGroup: 'Back', defaultUnit: 'kg', description: '', difficultyLevel: 'Beginner', equipmentUsed: [] },
-    { id: '4', name: 'Overhead Press', muscleGroup: 'Shoulders', defaultUnit: 'kg', description: '', difficultyLevel: 'Beginner', equipmentUsed: [] },
-  ];
+  workoutData = inject(WorkoutDataService);
 
   newExerciseName = '';
   newExerciseMuscleGroup = '';
@@ -27,17 +20,11 @@ export class ExerciseLibraryComponent {
       return;
     }
 
-    const exercise: Exercise = {
-      id: crypto.randomUUID(),
-      name: this.newExerciseName,
-      muscleGroup: this.newExerciseMuscleGroup,
-      defaultUnit: this.newExerciseUnit,
-      description: '',
-      difficultyLevel: 'Beginner',
-      equipmentUsed: []
-    };
-
-    this.exercises.push(exercise);
+    this.workoutData.addExercise(
+      this.newExerciseName,
+      this.newExerciseMuscleGroup,
+      this.newExerciseUnit
+    );
 
     this.newExerciseName = '';
     this.newExerciseMuscleGroup = '';
