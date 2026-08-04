@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DashboardComponent } from './dashboard';
+import { ActiveSessionComponent } from './active-session';
 
-describe('DashboardComponent', () => {
-  let component: DashboardComponent;
-  let fixture: ComponentFixture<DashboardComponent>;
+describe('ActiveSessionComponent', () => {
+  let component: ActiveSessionComponent;
+  let fixture: ComponentFixture<ActiveSessionComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardComponent],
+      imports: [ActiveSessionComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DashboardComponent);
+    fixture = TestBed.createComponent(ActiveSessionComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

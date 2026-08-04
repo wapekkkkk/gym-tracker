@@ -1,0 +1,53 @@
+@if (activeSession.session(); as session) {
+  <h2>{{ session.name }}</h2>
+  <p>Status: {{ session.status }}</p>
+<button (click)="finishSession()">Finish session</button>
+  <select [(ngModel)]="selectedExerciseId" name="exerciseSelect">
+    <option value="" disabled selected>Select an exercise</option>
+    @for (exercise of workoutData.exercises(); track exercise.id) {
+      <option [value]="exercise.id">{{ exercise.name }}</option>
+    }
+  </select>
+  <button (click)="addExercise()">Add to session</button>
+
+  @if (session.entries.length === 0) {
+    <p><em>No exercises added yet.</em></p>
+  } @else {
+    @for (entry of session.entries; track entry.id) {
+      <div class="entry-card">
+        <h3>
+          {{ exerciseName(entry.exerciseId) }}
+          <button (click)="activeSession.removeExercise(entry.id)">Remove</button>
+        </h3>
+
+        @for (set of entry.sets; track $index) {
+          <div class="set-row">
+            <span>{{ set.reps }} reps</span>
+            <span>{{ set.weight }} {{ set.unit }}</span>
+            <span>✅</span>
+          </div>
+        }
+
+        @for (row of getPendingRows(entry.id); track $index) {
+          <div class="set-row">
+            <input type="number" placeholder="reps" [(ngModel)]="row.reps" [name]="'reps-' + entry.id + '-' + $index" />
+            <input type="number" placeholder="weight" [(ngModel)]="row.weight" [name]="'weight-' + entry.id + '-' + $index" />
+            <button (click)="confirmSet(entry, $index)">Done</button>
+            <button (click)="removePendingRow(entry.id, $index)">✕</button>
+          </div>
+        }
+
+        <button (click)="addPendingRow(entry.id)">Add set</button>
+
+        @if (restingEntryId() === entry.id) {
+          <p class="rest-timer">
+            Resting: {{ secondsRemaining() }}s
+            <button (click)="stopRestTimer()">Skip</button>
+          </p>
+        }
+      </div>
+    }
+  }
+} @else {
+  <p>No active session. <a routerLink="/session/start">Start one</a></p>
+}

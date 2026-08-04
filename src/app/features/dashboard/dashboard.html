@@ -1,2 +1,30 @@
 <h2>Dashboard</h2>
-<p>Coming soon — recent workouts and stats will live here.</p>
+
+<h3>Recent sessions</h3>
+@if (workoutData.sessions().length === 0) {
+  <p><em>No completed sessions yet.</em></p>
+} @else {
+  <ul>
+    @for (session of workoutData.sessions(); track session.id) {
+      <li>
+        <strong>{{ session.name }}</strong>
+        — {{ session.date | date:'short' }}
+        — {{ session.entries.length }} exercise(s)
+      </li>
+    }
+  </ul>
+}
+
+<h3>Personal bests</h3>
+@if (workoutData.personalBests().length === 0) {
+  <p><em>No personal bests yet — finish a session to set some.</em></p>
+} @else {
+  <ul>
+    @for (pb of workoutData.personalBests(); track pb.exerciseId) {
+      <li>
+        <strong>{{ workoutData.getExerciseName(pb.exerciseId) }}</strong>
+        — {{ pb.weight }}{{ pb.unit }} × {{ pb.reps }} (volume {{ pb.volume }})
+      </li>
+    }
+  </ul>
+}

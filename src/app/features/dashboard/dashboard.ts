@@ -1,9 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { WorkoutDataService } from '../../services/workout-data';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  standalone: true,
+  imports: [DatePipe],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
+  styleUrl: './dashboard.css'
 })
-export class DashboardComponent {}
+export class DashboardComponent {
+  workoutData = inject(WorkoutDataService);
+}

@@ -1,11 +1,15 @@
 import { Injectable, signal, effect, inject } from '@angular/core';
 import { Exercise } from '../models/exercise';
+import { WorkoutSession } from '../models/session';
+import { PersonalBest } from '../models/personal-best';
 import { LocalStorageService } from './local-storage';
 
 const STORAGE_KEY = 'gym-tracker:workout-data';
 
 interface WorkoutData {
   exercises: Exercise[];
+  sessions: WorkoutSession[];
+  personalBests: PersonalBest[];
 }
 
 const DEFAULT_EXERCISES: Exercise[] = [
@@ -23,17 +27,27 @@ export class WorkoutDataService {
 
   muscleGroups = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Full body', 'Cardio'];
 
-  private exercisesData = signal<Exercise[]>(
-    this.storage.load<WorkoutData>(STORAGE_KEY, { exercises: DEFAULT_EXERCISES }).exercises
-  );
+  // Load everything once at startup — one read instead of three.
+  private loaded = this.storage.load<WorkoutData>(STORAGE_KEY, {
+    exercises: DEFAULT_EXERCISES,
+    sessions: [],
+    personalBests: []
+  });
+
+  private exercisesData = signal<Exercise[]>(this.loaded.exercises);
+  private sessionsData = signal<WorkoutSession[]>(this.loaded.sessions);
+  private personalBestsData = signal<PersonalBest[]>(this.loaded.personalBests);
 
   exercises = this.exercisesData.asReadonly();
+  sessions = this.sessionsData.asReadonly();
+  personalBests = this.personalBestsData.asReadonly();
 
   constructor() {
-    // Runs automatically every time exercisesData changes, and once immediately on startup.
     effect(() => {
       this.storage.save<WorkoutData>(STORAGE_KEY, {
-        exercises: this.exercisesData()
+        exercises: this.exercisesData(),
+        sessions: this.sessionsData(),
+        personalBests: this.personalBestsData()
       });
     });
   }
@@ -48,7 +62,38 @@ export class WorkoutDataService {
       difficultyLevel: 'Beginner',
       equipmentUsed: []
     };
-
     this.exercisesData.update(current => [...current, exercise]);
+  }
+
+  getExerciseName(exerciseId: string): string {
+    return this.exercisesData().find(e => e.id === exerciseId)?.name ?? 'Unknown exercise';
+  }
+
+  completeSession(session: WorkoutSession) {
+    this.sessionsData.update(current => [...current, session]);
+
+    for (const entry of session.entries) {
+      for (const set of entry.sets) {
+        const volume = set.weight * set.reps;
+        const existing = this.personalBestsData().find(pb => pb.exerciseId === entry.exerciseId);
+
+        if (!existing || volume > existing.volume) {
+          const newPb: PersonalBest = {
+            exerciseId: entry.exerciseId,
+            weight: set.weight,
+            reps: set.reps,
+            unit: set.unit,
+            volume,
+            achievedDate: session.date,
+            sessionId: session.id
+          };
+
+          this.personalBestsData.update(current => [
+            ...current.filter(pb => pb.exerciseId !== entry.exerciseId),
+            newPb
+          ]);
+        }
+      }
+    }
   }
 }
