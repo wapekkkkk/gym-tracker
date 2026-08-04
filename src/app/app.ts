@@ -11,13 +11,26 @@
 //   protected readonly title = signal('gym-tracker');
 // }
 
-import { Component, } from '@angular/core';
-import { ExerciseLibraryComponent } from './features/exercise-library/exercise-library';
+// import { Component, } from '@angular/core';
+// import { ExerciseLibraryComponent } from './features/exercise-library/exercise-library';
 
+
+// @Component({
+//   selector: 'app-root',
+//   imports: [ExerciseLibraryComponent],
+//   templateUrl: './app.html',
+//   styleUrl: './app.css'
+// })
+// export class AppComponent {
+//   title = 'gym-tracker';
+// }
+
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [ExerciseLibraryComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
