@@ -1,5 +1,27 @@
-<p>exercise-library works!</p>
 <h2>Exercise library</h2>
+
+<form (ngSubmit)="addExercise()">
+  <input
+    type="text"
+    placeholder="Exercise name"
+    [(ngModel)]="newExerciseName"
+    name="exerciseName"
+  />
+
+  <select [(ngModel)]="newExerciseMuscleGroup" name="muscleGroup">
+    <option value="" disabled selected>Select muscle group</option>
+    @for (group of muscleGroups; track group) {
+      <option [value]="group">{{ group }}</option>
+    }
+  </select>
+
+  <select [(ngModel)]="newExerciseUnit" name="unit">
+    <option value="kg">kg</option>
+    <option value="lbs">lbs</option>
+  </select>
+
+  <button type="submit">Add exercise</button>
+</form>
 
 <ul>
   @for (exercise of exercises; track exercise.id) {
