@@ -1,0 +1,10 @@
+<p>exercise-library works!</p>
+<h2>Exercise library</h2>
+
+<ul>
+  @for (exercise of exercises; track exercise.id) {
+    <li>
+      <strong>{{ exercise.name }}</strong> — {{ exercise.muscleGroup }}
+    </li>
+  }
+</ul>

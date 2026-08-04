@@ -1,12 +1,26 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+// import { Component, signal } from '@angular/core';
+// import { RouterOutlet } from '@angular/router';
+
+// @Component({
+//   selector: 'app-root',
+//   imports: [RouterOutlet],
+//   templateUrl: './app.html',
+//   styleUrl: './app.css'
+// })
+// export class App {
+//   protected readonly title = signal('gym-tracker');
+// }
+
+import { Component, } from '@angular/core';
+import { ExerciseLibraryComponent } from './features/exercise-library/exercise-library';
+
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [ExerciseLibraryComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
-  protected readonly title = signal('gym-tracker');
+export class AppComponent {
+  title = 'gym-tracker';
 }
