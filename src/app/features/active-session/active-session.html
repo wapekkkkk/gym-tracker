@@ -1,7 +1,32 @@
 @if (activeSession.session(); as session) {
   <h2>{{ session.name }}</h2>
   <p>Status: {{ session.status }}</p>
-<button (click)="finishSession()">Finish session</button>
+
+  @if (!showFinishPrompt()) {
+    <button (click)="openFinishPrompt()">Finish session</button>
+  } @else {
+    <div class="finish-prompt">
+      <p>Finish this session?</p>
+
+      <label>
+        <input type="checkbox" [(ngModel)]="saveAsTemplate" name="saveAsTemplate" />
+        Save these exercises as a template
+      </label>
+
+      @if (saveAsTemplate) {
+        <input
+          type="text"
+          placeholder="Template name"
+          [(ngModel)]="templateName"
+          name="templateNameOnFinish"
+        />
+      }
+
+      <button (click)="confirmFinishSession()">Confirm finish</button>
+      <button (click)="cancelFinishPrompt()">Cancel</button>
+    </div>
+  }
+
   <select [(ngModel)]="selectedExerciseId" name="exerciseSelect">
     <option value="" disabled selected>Select an exercise</option>
     @for (exercise of workoutData.exercises(); track exercise.id) {
@@ -16,10 +41,12 @@
     @for (entry of session.entries; track entry.id) {
       <div class="entry-card">
         <h3>
-          {{ exerciseName(entry.exerciseId) }}
-          <button (click)="activeSession.removeExercise(entry.id)">Remove</button>
-        </h3>
-
+  {{ exerciseName(entry.exerciseId) }}
+  @if (entry.targetSets && entry.targetReps) {
+    <span class="target-hint">Target: {{ entry.targetSets }}×{{ entry.targetReps }}</span>
+  }
+  <button (click)="activeSession.removeExercise(entry.id)">Remove</button>
+</h3>
         @for (set of entry.sets; track $index) {
           <div class="set-row">
             <span>{{ set.reps }} reps</span>

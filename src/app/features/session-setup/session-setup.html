@@ -9,4 +9,17 @@
 
 <button (click)="startBlank()">Start blank session</button>
 
-<p><em>Starting from a template will be available once the template library is built.</em></p>
+<h3>Or start from a template</h3>
+@if (workoutData.templates().length === 0) {
+  <p><em>No templates yet — create one in the <a routerLink="/templates">Templates</a> page.</em></p>
+} @else {
+  <ul>
+    @for (template of workoutData.templates(); track template.id) {
+      <li>
+        <strong>{{ template.name }}</strong>
+        — {{ template.exercises.length }} exercise(s)
+        <button (click)="startFromTemplate(template)">Start from this template</button>
+      </li>
+    }
+  </ul>
+}

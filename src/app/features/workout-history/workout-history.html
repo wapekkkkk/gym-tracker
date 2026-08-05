@@ -1,0 +1,40 @@
+<h2>Workout history</h2>
+
+@if (sortedSessions().length === 0) {
+  <p><em>No completed sessions yet. Finish a workout to see it here.</em></p>
+} @else {
+  <ul class="session-list">
+    @for (session of sortedSessions(); track session.id) {
+      <li class="session-card">
+        <div class="session-summary" (click)="toggleExpanded(session.id)">
+          <strong>{{ session.name }}</strong>
+          <span>{{ session.date | date:'medium' }}</span>
+          <span>{{ session.entries.length }} exercise(s)</span>
+          <span>Volume: {{ sessionVolume(session) }}</span>
+          @if (session.sourceTemplateId) {
+            <span class="from-template-badge">From template</span>
+          }
+        </div>
+
+        @if (isExpanded(session.id)) {
+          <div class="session-detail">
+            @for (entry of session.entries; track entry.id) {
+              <div class="entry-detail">
+                <h4>{{ exerciseName(entry.exerciseId) }}</h4>
+                @if (entry.sets.length === 0) {
+                  <p><em>No sets logged.</em></p>
+                } @else {
+                  <ul>
+                    @for (set of entry.sets; track $index) {
+                      <li>{{ set.reps }} reps @ {{ set.weight }}{{ set.unit }}</li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+          </div>
+        }
+      </li>
+    }
+  </ul>
+}

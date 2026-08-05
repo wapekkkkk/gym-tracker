@@ -10,6 +10,8 @@ export interface WorkoutEntry {
   id: string;
   exerciseId: string;
   restSeconds: number;
+  targetSets?: number;
+  targetReps?: number;
   sets: SetEntry[];
 }
 

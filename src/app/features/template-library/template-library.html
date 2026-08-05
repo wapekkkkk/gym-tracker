@@ -1,0 +1,66 @@
+<h2>Templates</h2>
+
+<h3>Create a template</h3>
+<input
+  type="text"
+  placeholder="Template name"
+  [(ngModel)]="templateName"
+  name="templateName"
+/>
+
+<div class="draft-exercise-form">
+  <select [(ngModel)]="selectedExerciseId" name="draftExercise">
+    <option value="" disabled selected>Select an exercise</option>
+    @for (exercise of workoutData.exercises(); track exercise.id) {
+      <option [value]="exercise.id">{{ exercise.name }}</option>
+    }
+  </select>
+
+  <label>
+    Sets
+    <input type="number" [(ngModel)]="targetSets" name="targetSets" min="1" />
+  </label>
+
+  <label>
+    Reps
+    <input type="number" [(ngModel)]="targetReps" name="targetReps" min="1" />
+  </label>
+
+  <label>
+    Rest (s)
+    <input type="number" [(ngModel)]="restSeconds" name="restSecondsDraft" min="0" />
+  </label>
+
+  <button (click)="addExerciseToDraft()">Add exercise to template</button>
+</div>
+
+@if (draftExercises.length > 0) {
+  <ul class="draft-list">
+    @for (te of draftExercises; track $index) {
+      <li>
+        {{ workoutData.getExerciseName(te.exerciseId) }}
+        — {{ te.targetSets }}×{{ te.targetReps }}, {{ te.restSeconds }}s rest
+        <button (click)="removeDraftExercise($index)">✕</button>
+      </li>
+    }
+  </ul>
+  <button (click)="saveTemplate()">Save template</button>
+} @else {
+  <p><em>Add at least one exercise before saving.</em></p>
+}
+
+<h3>Your templates</h3>
+@if (workoutData.templates().length === 0) {
+  <p><em>No templates yet.</em></p>
+} @else {
+  <ul>
+    @for (template of workoutData.templates(); track template.id) {
+      <li>
+        <strong>{{ template.name }}</strong>
+        — {{ template.exercises.length }} exercise(s)
+        <button (click)="startFromTemplate(template)">Start session</button>
+        <button (click)="workoutData.removeTemplate(template.id)">Delete</button>
+      </li>
+    }
+  </ul>
+}

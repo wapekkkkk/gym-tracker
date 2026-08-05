@@ -1,0 +1,6 @@
+.session-summary {
+  cursor: pointer;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
