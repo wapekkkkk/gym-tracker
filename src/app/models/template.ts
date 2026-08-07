@@ -9,4 +9,5 @@ export interface Template {
   id: string;
   name: string;
   exercises: TemplateExercise[];
+  createdAt: string; // ISO string — drives "X days ago" on Start Workout
 }

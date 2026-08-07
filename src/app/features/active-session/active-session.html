@@ -1,80 +1,185 @@
 @if (activeSession.session(); as session) {
-  <h2>{{ session.name }}</h2>
-  <p>Status: {{ session.status }}</p>
+  <div class="page active-session-page">
+    <div class="session-toolbar">
+      <button class="icon-pill toolbar-btn" type="button" aria-label="Discard workout" (click)="discardSession()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4v6h6M4 10a8 8 0 1 1 2.3 5.6"></path>
+        </svg>
+      </button>
 
-  @if (!showFinishPrompt()) {
-    <button (click)="openFinishPrompt()">Finish session</button>
-  } @else {
-    <div class="finish-prompt">
-      <p>Finish this session?</p>
-
-      <label>
-        <input type="checkbox" [(ngModel)]="saveAsTemplate" name="saveAsTemplate" />
-        Save these exercises as a template
-      </label>
-
-      @if (saveAsTemplate) {
-        <input
-          type="text"
-          placeholder="Template name"
-          [(ngModel)]="templateName"
-          name="templateNameOnFinish"
-        />
+      @if (!showFinishPrompt()) {
+        <button class="btn-success finish-btn" type="button" (click)="openFinishPrompt()">Finish</button>
+      } @else {
+        <button class="btn-success finish-btn" type="button" (click)="confirmFinishSession()">Confirm</button>
       }
-
-      <button (click)="confirmFinishSession()">Confirm finish</button>
-      <button (click)="cancelFinishPrompt()">Cancel</button>
     </div>
-  }
 
-  <select [(ngModel)]="selectedExerciseId" name="exerciseSelect">
-    <option value="" disabled selected>Select an exercise</option>
-    @for (exercise of workoutData.exercises(); track exercise.id) {
-      <option [value]="exercise.id">{{ exercise.name }}</option>
-    }
-  </select>
-  <button (click)="addExercise()">Add to session</button>
+    <h1 class="session-name-row">
+      {{ session.name }}
+      <button class="icon-pill icon-pill-sm" type="button" aria-label="Session options">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="1.6"></circle>
+          <circle cx="12" cy="12" r="1.6"></circle>
+          <circle cx="19" cy="12" r="1.6"></circle>
+        </svg>
+      </button>
+    </h1>
 
-  @if (session.entries.length === 0) {
-    <p><em>No exercises added yet.</em></p>
-  } @else {
-    @for (entry of session.entries; track entry.id) {
-      <div class="entry-card">
-        <h3>
-  {{ exerciseName(entry.exerciseId) }}
-  @if (entry.targetSets && entry.targetReps) {
-    <span class="target-hint">Target: {{ entry.targetSets }}×{{ entry.targetReps }}</span>
-  }
-  <button (click)="activeSession.removeExercise(entry.id)">Remove</button>
-</h3>
-        @for (set of entry.sets; track $index) {
-          <div class="set-row">
-            <span>{{ set.reps }} reps</span>
-            <span>{{ set.weight }} {{ set.unit }}</span>
-            <span>✅</span>
-          </div>
+    <div class="session-meta-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+        <path d="M8 3v4M16 3v4M3 10h18"></path>
+      </svg>
+      {{ session.date | date:'d MMM y' }}
+    </div>
+    <div class="session-meta-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M12 7v5l3 3"></path>
+      </svg>
+      {{ formatElapsed() }}
+    </div>
+
+    @if (showFinishPrompt()) {
+      <div class="card finish-prompt">
+        <p class="finish-prompt-title">Finish this session?</p>
+        <label class="finish-checkbox-row">
+          <input type="checkbox" [(ngModel)]="saveAsTemplate" name="saveAsTemplate" />
+          Save these exercises as a template
+        </label>
+        @if (saveAsTemplate) {
+          <input
+            type="text"
+            class="finish-template-name"
+            placeholder="Template name"
+            [(ngModel)]="templateName"
+            name="templateNameOnFinish"
+          />
         }
-
-        @for (row of getPendingRows(entry.id); track $index) {
-          <div class="set-row">
-            <input type="number" placeholder="reps" [(ngModel)]="row.reps" [name]="'reps-' + entry.id + '-' + $index" />
-            <input type="number" placeholder="weight" [(ngModel)]="row.weight" [name]="'weight-' + entry.id + '-' + $index" />
-            <button (click)="confirmSet(entry, $index)">Done</button>
-            <button (click)="removePendingRow(entry.id, $index)">✕</button>
-          </div>
-        }
-
-        <button (click)="addPendingRow(entry.id)">Add set</button>
-
-        @if (restingEntryId() === entry.id) {
-          <p class="rest-timer">
-            Resting: {{ secondsRemaining() }}s
-            <button (click)="stopRestTimer()">Skip</button>
-          </p>
-        }
+        <div class="finish-prompt-actions">
+          <button class="btn-success btn-block" type="button" (click)="confirmFinishSession()">Confirm finish</button>
+          <button class="link-btn" type="button" (click)="cancelFinishPrompt()">Cancel</button>
+        </div>
       </div>
     }
-  }
+
+    @if (session.entries.length === 0) {
+      <p class="empty-hint">No exercises added yet.</p>
+    } @else {
+      @for (entry of session.entries; track entry.id) {
+        <div class="exercise-block">
+          <div class="exercise-block-head">
+            <span class="exercise-block-name">{{ exerciseName(entry.exerciseId) }}</span>
+            <div class="section-actions">
+              <span class="icon-pill icon-pill-sm" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19l5-5 4 4 7-9"></path>
+                </svg>
+              </span>
+              <button class="icon-pill icon-pill-sm" type="button" aria-label="Remove exercise" (click)="activeSession.removeExercise(entry.id)">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="5" cy="12" r="1.6"></circle>
+                  <circle cx="12" cy="12" r="1.6"></circle>
+                  <circle cx="19" cy="12" r="1.6"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          @if (entry.targetSets && entry.targetReps) {
+            <p class="target-hint">Target: {{ entry.targetSets }}×{{ entry.targetReps }}</p>
+          }
+
+          <div class="set-table">
+            <div class="set-table-header">
+              <span>Set</span>
+              <span>Previous</span>
+              <span>kg</span>
+              <span>Reps</span>
+              <span>✓</span>
+              <span></span>
+            </div>
+
+            @for (set of entry.sets; track $index) {
+              <div class="set-row">
+                <span class="set-index">{{ $index + 1 }}</span>
+                <span class="set-previous">{{ formatPreviousSet(previousSetsFor(entry.exerciseId), $index) ?? '—' }}</span>
+                <span class="set-value">{{ set.weight }}</span>
+                <span class="set-value">{{ set.reps }}</span>
+                <span class="set-check set-check-done">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12l5 5L19 7"></path>
+                  </svg>
+                </span>
+                <span></span>
+              </div>
+
+              @if (isLiveRestBar(entry) && $last) {
+                <div class="rest-bar">
+                  <div class="rest-bar-fill" [style.width.%]="restProgressPercent(entry)"></div>
+                  <span class="rest-bar-label">{{ formatRest(secondsRemaining()) }}</span>
+                  <button class="rest-bar-skip" type="button" (click)="stopRestTimer()">Skip</button>
+                </div>
+              } @else {
+                <div class="rest-bar rest-bar-static">
+                  <div class="rest-bar-fill" style="width: 100%"></div>
+                  <span class="rest-bar-label">{{ formatRest(entry.restSeconds) }}</span>
+                </div>
+              }
+            }
+
+            @for (row of getPendingRows(entry.id); track $index) {
+              <div class="set-row">
+                <span class="set-index">{{ entry.sets.length + $index + 1 }}</span>
+                <span class="set-previous">
+                  {{ formatPreviousSet(previousSetsFor(entry.exerciseId), entry.sets.length + $index) ?? '—' }}
+                </span>
+                <input
+                  type="number"
+                  class="set-input"
+                  [(ngModel)]="row.weight"
+                  [name]="'weight-' + entry.id + '-' + $index"
+                />
+                <input
+                  type="number"
+                  class="set-input"
+                  [(ngModel)]="row.reps"
+                  [name]="'reps-' + entry.id + '-' + $index"
+                />
+                <button class="set-check" type="button" aria-label="Log set" (click)="confirmSet(entry, $index)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12l5 5L19 7"></path>
+                  </svg>
+                </button>
+                <button class="pending-remove" type="button" aria-label="Remove row" (click)="removePendingRow(entry.id, $index)">✕</button>
+              </div>
+            }
+          </div>
+
+          <button class="add-set-btn" type="button" (click)="addPendingRow(entry.id)">
+            + Add Set ({{ formatRest(entry.restSeconds) }})
+          </button>
+        </div>
+      }
+    }
+
+<button class="pill-btn add-exercise-btn" type="button" (click)="openExercisePicker()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+    <path d="M12 5v14M5 12h14"></path>
+  </svg>
+  Add Exercises
+</button>
+
+@if (showExercisePicker()) {
+  <app-exercise-picker
+    (closed)="onPickerClosed()"
+    (exercisesSelected)="onExercisesSelected($event)"
+  ></app-exercise-picker>
+}
+
+  </div>
 } @else {
-  <p>No active session. <a routerLink="/session/start">Start one</a></p>
+  <div class="page">
+    <p>No active session. <a routerLink="/session/start" class="pill-btn">Start one</a></p>
+  </div>
 }

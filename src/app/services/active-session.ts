@@ -95,11 +95,15 @@ export class ActiveSessionService {
   }
 
   finishSession(): WorkoutSession | null {
-    const current = this.sessionData();
-    if (!current) return null;
+  const current = this.sessionData();
+  if (!current) return null;
 
-    const completed: WorkoutSession = { ...current, status: 'completed' };
-    this.sessionData.set(null);
-    return completed;
-  }
+  const durationSeconds = Math.round((Date.now() - new Date(current.date).getTime()) / 1000);
+  const completed: WorkoutSession = { ...current, status: 'completed', durationSeconds };
+  this.sessionData.set(null);
+  return completed;
+}
+discardSession() {
+  this.sessionData.set(null);
+}
 }

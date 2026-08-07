@@ -1,25 +1,93 @@
-<h2>Start a new session</h2>
+<div class="page">
+  <header class="page-header">
+    <button class="icon-btn" type="button" aria-label="Search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M21 21l-4.3-4.3"></path>
+      </svg>
+    </button>
+  </header>
 
-<input
-  type="text"
-  placeholder="Session name (optional)"
-  [(ngModel)]="sessionName"
-  name="sessionName"
-/>
+  <h1 class="page-title">Start Workout</h1>
 
-<button (click)="startBlank()">Start blank session</button>
+  <section class="quick-start-section">
+    <h2 class="section-label">Quick Start</h2>
+    <button class="btn-primary btn-block" type="button" (click)="startBlank()">
+      Start an Empty Workout
+    </button>
+  </section>
 
-<h3>Or start from a template</h3>
-@if (workoutData.templates().length === 0) {
-  <p><em>No templates yet — create one in the <a routerLink="/templates">Templates</a> page.</em></p>
-} @else {
-  <ul>
-    @for (template of workoutData.templates(); track template.id) {
-      <li>
-        <strong>{{ template.name }}</strong>
-        — {{ template.exercises.length }} exercise(s)
-        <button (click)="startFromTemplate(template)">Start from this template</button>
-      </li>
+  <section class="templates-section">
+    <div class="section-row">
+      <h2 class="section-title">Templates</h2>
+      <div class="section-actions">
+        <a routerLink="/templates" class="pill-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          Template
+        </a>
+        <button class="icon-pill" type="button" aria-label="All templates">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7h6l2 2h10v10H3z"></path>
+          </svg>
+        </button>
+        <button class="icon-pill" type="button" aria-label="More options">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.6"></circle>
+            <circle cx="12" cy="12" r="1.6"></circle>
+            <circle cx="19" cy="12" r="1.6"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="section-row">
+      <h3 class="subsection-title">My Templates ({{ workoutData.templates().length }})</h3>
+      <button class="icon-pill" type="button" aria-label="More options">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="1.6"></circle>
+          <circle cx="12" cy="12" r="1.6"></circle>
+          <circle cx="19" cy="12" r="1.6"></circle>
+        </svg>
+      </button>
+    </div>
+
+    @if (workoutData.templates().length === 0) {
+      <p class="empty-hint">No templates yet — tap <strong>+ Template</strong> to create one.</p>
+    } @else {
+      <div class="template-grid">
+        @for (template of workoutData.templates(); track template.id) {
+          <div
+            class="template-card"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'Start ' + template.name"
+            (click)="startFromTemplate(template)"
+            (keydown.enter)="startFromTemplate(template)"
+          >
+            <div class="template-card-head">
+              <span class="template-name">{{ template.name }}</span>
+              <button
+                class="icon-pill icon-pill-sm"
+                type="button"
+                [attr.aria-label]="'Delete ' + template.name"
+                (click)="removeTemplate(template.id, $event)"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="5" cy="12" r="1.6"></circle>
+                  <circle cx="12" cy="12" r="1.6"></circle>
+                  <circle cx="19" cy="12" r="1.6"></circle>
+                </svg>
+              </button>
+            </div>
+            <p class="template-preview">{{ exercisePreview(template) }}</p>
+            @if (relativeTime(template.createdAt); as when) {
+              <p class="template-meta">{{ when }}</p>
+            }
+          </div>
+        }
+      </div>
     }
-  </ul>
-}
+  </section>
+</div>

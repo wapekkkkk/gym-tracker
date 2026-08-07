@@ -22,4 +22,6 @@ export interface WorkoutSession {
   status: 'active' | 'completed';
   sourceTemplateId?: string;
   entries: WorkoutEntry[];
+  durationSeconds?: number; // set on finish — absent on sessions finished before this field existed
+  prCount?: number;         // number of sets that beat the prior PB, set in completeSession()
 }

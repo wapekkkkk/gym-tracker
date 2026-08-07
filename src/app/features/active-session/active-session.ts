@@ -1,11 +1,11 @@
 import { Component, inject, signal, effect, OnDestroy } from '@angular/core';
-//                                  ^^^^^^ add this — needed for the constructor below
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import { ActiveSessionService } from '../../services/active-session';
 import { WorkoutDataService } from '../../services/workout-data';
-import { WorkoutEntry } from '../../models/session';
-import { Router } from '@angular/router';
+import { WorkoutEntry, SetEntry } from '../../models/session';
+import { ExercisePickerComponent } from '../exercise-picker/exercise-picker';
 
 interface PendingSet {
   reps: number;
@@ -14,7 +14,7 @@ interface PendingSet {
 
 @Component({
   selector: 'app-active-session',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, DatePipe, ExercisePickerComponent],
   templateUrl: './active-session.html',
   styleUrl: './active-session.css'
 })
@@ -22,35 +22,60 @@ export class ActiveSessionComponent implements OnDestroy {
   activeSession = inject(ActiveSessionService);
   workoutData = inject(WorkoutDataService);
   private router = inject(Router);
-  selectedExerciseId = '';
 
-  pendingSets: Record<string, PendingSet[]> = {};
+  showExercisePicker = signal(false);
+pendingSets: Record<string, PendingSet[]> = {};
+
+  openExercisePicker() {
+    this.showExercisePicker.set(true);
+  }
+
+  onPickerClosed() {
+    this.showExercisePicker.set(false);
+  }
+
+  onExercisesSelected(exerciseIds: string[]) {
+    for (const id of exerciseIds) {
+      this.activeSession.addExercise(id);
+    }
+    this.showExercisePicker.set(false);
+  }
 
   restingEntryId = signal<string | null>(null);
   secondsRemaining = signal(0);
   private timerHandle: ReturnType<typeof setInterval> | null = null;
 
+  elapsedSeconds = signal(0);
+  private elapsedHandle: ReturnType<typeof setInterval> | null = null;
+
   showFinishPrompt = signal(false);
   saveAsTemplate = false;
   templateName = '';
 
-  // NEW — put these two members here, right after your other field declarations
-  // and before any methods. Order among fields doesn't matter functionally,
-  // but keeping it near the other signal/state fields keeps things scannable.
   private prefilledEntryIds = new Set<string>();
 
-  // NEW — the constructor. This class doesn't have one yet (it only has
-  // ngOnDestroy), so this is a new addition — goes right after the field
-  // declarations, before ngOnDestroy or any other method.
   constructor() {
     effect(() => this.prefillFromTargets());
+
+    // Ticks the "time since session started" display. Re-runs whenever
+    // activeSession.session() changes identity (e.g. a fresh session begins),
+    // clearing the old interval so we never end up with two tickers running.
+    effect(() => {
+      const session = this.activeSession.session();
+      if (this.elapsedHandle) clearInterval(this.elapsedHandle);
+      if (!session) return;
+
+      const tick = () => {
+        const startedMs = new Date(session.date).getTime();
+        this.elapsedSeconds.set(Math.max(0, Math.round((Date.now() - startedMs) / 1000)));
+      };
+      tick();
+      this.elapsedHandle = setInterval(tick, 1000);
+    });
   }
 
-  addExercise() {
-    if (!this.selectedExerciseId) return;
-    this.activeSession.addExercise(this.selectedExerciseId);
-    this.selectedExerciseId = '';
-  }
+
+
 
   exerciseName(exerciseId: string): string {
     return this.workoutData.exercises().find(e => e.id === exerciseId)?.name ?? 'Unknown exercise';
@@ -110,12 +135,9 @@ export class ActiveSessionComponent implements OnDestroy {
 
   ngOnDestroy() {
     if (this.timerHandle) clearInterval(this.timerHandle);
+    if (this.elapsedHandle) clearInterval(this.elapsedHandle);
   }
 
-  // NEW — private helper, place it anywhere among the other methods.
-  // I'd put it right before openFinishPrompt(), since finish-flow and
-  // this are both "session lifecycle" concerns, but placement here is
-  // purely organizational — it doesn't affect behavior.
   private prefillFromTargets() {
     const session = this.activeSession.session();
     if (!session) return;
@@ -155,5 +177,55 @@ export class ActiveSessionComponent implements OnDestroy {
 
     this.showFinishPrompt.set(false);
     this.router.navigate(['/dashboard']);
+  }
+
+  discardSession() {
+    if (!window.confirm('Discard this workout? This can\'t be undone.')) return;
+    if (this.timerHandle) clearInterval(this.timerHandle);
+    this.restingEntryId.set(null);
+    this.activeSession.discardSession();
+    this.router.navigate(['/session/start']);
+  }
+
+  // Most recent past session that logged this exercise — drives the
+  // "Previous" column. Returns [] if it's never been done before.
+  previousSetsFor(exerciseId: string): SetEntry[] {
+    const sessions = [...this.workoutData.sessions()].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    for (const session of sessions) {
+      const entry = session.entries.find(e => e.exerciseId === exerciseId);
+      if (entry && entry.sets.length > 0) return entry.sets;
+    }
+    return [];
+  }
+
+  formatPreviousSet(sets: SetEntry[], index: number): string | null {
+    const s = sets[index];
+    return s ? `${s.weight} ${s.unit} × ${s.reps}` : null;
+  }
+
+  isLiveRestBar(entry: WorkoutEntry): boolean {
+    return this.restingEntryId() === entry.id;
+  }
+
+  restProgressPercent(entry: WorkoutEntry): number {
+    if (entry.restSeconds <= 0) return 0;
+    return Math.max(0, Math.min(100, (this.secondsRemaining() / entry.restSeconds) * 100));
+  }
+
+  formatElapsed(): string {
+    return this.formatMMSS(this.elapsedSeconds());
+  }
+
+  formatRest(seconds: number): string {
+    return this.formatMMSS(seconds);
+  }
+
+  private formatMMSS(totalSeconds: number): string {
+    const s = Math.max(0, Math.round(totalSeconds));
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
   }
 }

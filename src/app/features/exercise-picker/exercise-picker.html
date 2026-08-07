@@ -1,0 +1,73 @@
+<div class="picker-overlay">
+  <div class="picker-header">
+    <button class="link-btn" type="button" (click)="cancel()">Cancel</button>
+    <span class="picker-title">Add Exercises</span>
+    <button
+      class="link-btn"
+      type="button"
+      [disabled]="selectedIds().size === 0"
+      (click)="confirmAdd()"
+    >
+      Add{{ selectedIds().size > 0 ? ' (' + selectedIds().size + ')' : '' }}
+    </button>
+  </div>
+
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="M21 21l-4.3-4.3"></path>
+    </svg>
+    <input
+      type="text"
+      placeholder="Search"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+      name="pickerSearch"
+    />
+  </div>
+
+  <div class="filter-row">
+    <select class="filter-pill" [ngModel]="bodyPartFilter()" (ngModelChange)="bodyPartFilter.set($event)" name="pickerBodyPart">
+      <option value="">Any Body Part</option>
+      @for (part of bodyParts(); track part) {
+        <option [value]="part">{{ part }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="picker-list">
+    @if (groupedExercises().length === 0) {
+      <p class="empty-hint">No exercises match your search.</p>
+    }
+
+    @for (group of groupedExercises(); track group.letter) {
+      <div class="letter-divider">{{ group.letter }}</div>
+      @for (exercise of group.exercises; track exercise.id) {
+        <div
+          class="picker-row"
+          tabindex="0"
+          role="checkbox"
+          [attr.aria-checked]="isSelected(exercise.id)"
+          (click)="toggle(exercise.id)"
+          (keydown.enter)="toggle(exercise.id)"
+          (keydown.space)="toggle(exercise.id)"
+        >
+          <div class="exercise-avatar" [style.background]="avatarColor(exercise)">
+            {{ exercise.name.charAt(0) }}
+          </div>
+          <div class="exercise-info">
+            <span class="exercise-name">{{ exercise.name }}</span>
+            <span class="exercise-meta">{{ exercise.muscleGroup }}</span>
+          </div>
+          <span class="picker-checkbox" [class.picker-checkbox-checked]="isSelected(exercise.id)">
+            @if (isSelected(exercise.id)) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12l5 5L19 7"></path>
+              </svg>
+            }
+          </span>
+        </div>
+      }
+    }
+  </div>
+</div>

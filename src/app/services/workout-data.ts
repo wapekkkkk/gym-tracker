@@ -75,14 +75,15 @@ private templatesData = signal<Template[]>(this.loaded.templates ?? []);
     return this.exercisesData().find(e => e.id === exerciseId)?.name ?? 'Unknown exercise';
   }
 
-  addTemplate(name: string, exercises: TemplateExercise[]) {
-    const template: Template = {
-      id: crypto.randomUUID(),
-      name,
-      exercises
-    };
-    this.templatesData.update(current => [...current, template]);
-  }
+addTemplate(name: string, exercises: TemplateExercise[]) {
+  const template: Template = {
+    id: crypto.randomUUID(),
+    name,
+    exercises,
+    createdAt: new Date().toISOString()
+  };
+  this.templatesData.update(current => [...current, template]);
+}
 
   removeTemplate(templateId: string) {
     this.templatesData.update(current => current.filter(t => t.id !== templateId));
@@ -102,30 +103,33 @@ private templatesData = signal<Template[]>(this.loaded.templates ?? []);
   }
 
   completeSession(session: WorkoutSession) {
-    this.sessionsData.update(current => [...current, session]);
+  let prCount = 0;
 
-    for (const entry of session.entries) {
-      for (const set of entry.sets) {
-        const volume = set.weight * set.reps;
-        const existing = this.personalBestsData().find(pb => pb.exerciseId === entry.exerciseId);
+  for (const entry of session.entries) {
+    for (const set of entry.sets) {
+      const volume = set.weight * set.reps;
+      const existing = this.personalBestsData().find(pb => pb.exerciseId === entry.exerciseId);
 
-        if (!existing || volume > existing.volume) {
-          const newPb: PersonalBest = {
-            exerciseId: entry.exerciseId,
-            weight: set.weight,
-            reps: set.reps,
-            unit: set.unit,
-            volume,
-            achievedDate: session.date,
-            sessionId: session.id
-          };
+      if (!existing || volume > existing.volume) {
+        prCount++;
+        const newPb: PersonalBest = {
+          exerciseId: entry.exerciseId,
+          weight: set.weight,
+          reps: set.reps,
+          unit: set.unit,
+          volume,
+          achievedDate: session.date,
+          sessionId: session.id
+        };
 
-          this.personalBestsData.update(current => [
-            ...current.filter(pb => pb.exerciseId !== entry.exerciseId),
-            newPb
-          ]);
-        }
+        this.personalBestsData.update(current => [
+          ...current.filter(pb => pb.exerciseId !== entry.exerciseId),
+          newPb
+        ]);
       }
     }
   }
+
+  this.sessionsData.update(current => [...current, { ...session, prCount }]);
+}
 }

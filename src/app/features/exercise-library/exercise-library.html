@@ -1,32 +1,114 @@
-<h2>Exercise library</h2>
+<div class="page exercises-page">
+  <div class="exercises-header-row">
+    <button class="link-btn" type="button" (click)="toggleNewForm()">New</button>
+    <button class="icon-pill" type="button" aria-label="More options">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="5" cy="12" r="1.6"></circle>
+        <circle cx="12" cy="12" r="1.6"></circle>
+        <circle cx="19" cy="12" r="1.6"></circle>
+      </svg>
+    </button>
+  </div>
 
-<form (ngSubmit)="addExercise()">
-  <input
-    type="text"
-    placeholder="Exercise name"
-    [(ngModel)]="newExerciseName"
-    name="exerciseName"
-  />
+  <h1 class="page-title">Exercises</h1>
 
-  <select [(ngModel)]="newExerciseMuscleGroup" name="muscleGroup">
-    <option value="" disabled selected>Select muscle group</option>
-    @for (group of workoutData.muscleGroups; track group) {
-      <option [value]="group">{{ group }}</option>
-    }
-  </select>
-
-  <select [(ngModel)]="newExerciseUnit" name="unit">
-    <option value="kg">kg</option>
-    <option value="lbs">lbs</option>
-  </select>
-
-  <button type="submit">Add exercise</button>
-</form>
-
-<ul>
-  @for (exercise of workoutData.exercises(); track exercise.id) {
-    <li>
-      <strong>{{ exercise.name }}</strong> — {{ exercise.muscleGroup }}
-    </li>
+  @if (showNewForm()) {
+    <form class="new-exercise-form card" (ngSubmit)="addExercise()">
+      <input type="text" placeholder="Exercise name" [(ngModel)]="newExerciseName" name="exerciseName" />
+      <select [(ngModel)]="newExerciseMuscleGroup" name="muscleGroup">
+        <option value="" disabled selected>Select muscle group</option>
+        @for (group of workoutData.muscleGroups; track group) {
+          <option [value]="group">{{ group }}</option>
+        }
+      </select>
+      <select [(ngModel)]="newExerciseUnit" name="unit">
+        <option value="kg">kg</option>
+        <option value="lbs">lbs</option>
+      </select>
+      <button class="btn-primary btn-block" type="submit">Add exercise</button>
+    </form>
   }
-</ul>
+
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="M21 21l-4.3-4.3"></path>
+    </svg>
+    <input
+      type="text"
+      placeholder="Search"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+      name="search"
+    />
+  </div>
+
+  <div class="filter-row">
+    <select class="filter-pill" [ngModel]="bodyPartFilter()" (ngModelChange)="bodyPartFilter.set($event)" name="bodyPartFilter">
+      <option value="">Any Body Part</option>
+      @for (part of bodyParts(); track part) {
+        <option [value]="part">{{ part }}</option>
+      }
+    </select>
+
+    <select class="filter-pill" [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event)" name="categoryFilter">
+      <option value="">Any Category</option>
+      @for (category of categories(); track category) {
+        <option [value]="category">{{ category }}</option>
+      }
+    </select>
+
+    <button
+      class="icon-pill sort-btn"
+      type="button"
+      (click)="toggleSort()"
+      [attr.aria-label]="sortDescending() ? 'Sorted Z to A' : 'Sorted A to Z'"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 6v12M8 6L5 9M8 6l3 3M16 18V6M16 18l-3-3M16 18l3-3"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="exercise-list-wrap">
+    <div class="exercise-list">
+      @if (recentExercise(); as recent) {
+        <div class="recent-row">
+          <div class="exercise-avatar" [style.background]="avatarColor(recent.exercise)">
+            {{ recent.exercise.name.charAt(0) }}
+          </div>
+          <div class="exercise-info">
+            <span class="exercise-name">{{ recent.exercise.name }}</span>
+            <span class="exercise-meta">{{ recent.exercise.muscleGroup }}</span>
+          </div>
+          <span class="recent-stat">{{ recent.weight }} {{ recent.unit }} (×{{ recent.reps }})</span>
+        </div>
+      }
+
+      @if (groupedExercises().length === 0) {
+        <p class="empty-hint">No exercises match your filters.</p>
+      }
+
+      @for (group of groupedExercises(); track group.letter) {
+        <div class="letter-divider" [id]="'letter-' + group.letter">{{ group.letter }}</div>
+        @for (exercise of group.exercises; track exercise.id) {
+          <div class="exercise-row">
+            <div class="exercise-avatar" [style.background]="avatarColor(exercise)">
+              {{ exercise.name.charAt(0) }}
+            </div>
+            <div class="exercise-info">
+              <span class="exercise-name">{{ exercise.name }}</span>
+              <span class="exercise-meta">{{ exercise.muscleGroup }}</span>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="alpha-index">
+      @for (letter of availableLetters(); track letter) {
+        <button type="button" class="alpha-index-letter" (click)="scrollToLetter(letter)">{{ letter }}</button>
+      }
+    </div>
+  </div>
+</div>

@@ -1,9 +1,42 @@
-<nav>
-  <a routerLink="/dashboard" routerLinkActive="active-link">Dashboard</a>
-  <a routerLink="/exercises" routerLinkActive="active-link">Exercises</a>
-  <a routerLink="/templates" routerLinkActive="active-link">Templates</a>
-  <a routerLink="/history" routerLinkActive="active-link">History</a>
-  <a routerLink="/session/start" routerLinkActive="active-link">Start session</a>
-</nav>
+<main class="app-content">
+  <router-outlet></router-outlet>
+</main>
 
-<router-outlet></router-outlet>
+<nav class="tab-bar">
+  <a routerLink="/profile" routerLinkActive="tab-active" class="tab-item">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"></path>
+    </svg>
+    <span>Profile</span>
+  </a>
+
+  <a routerLink="/history" routerLinkActive="tab-active" class="tab-item">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M12 7v5l3 3"></path>
+    </svg>
+    <span>History</span>
+  </a>
+
+  <a routerLink="/session/start" routerLinkActive="tab-active" class="tab-item tab-item-primary">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+      <path d="M12 5v14M5 12h14"></path>
+    </svg>
+    <span>Start Workout</span>
+  </a>
+
+  <a routerLink="/exercises" routerLinkActive="tab-active" class="tab-item">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 12h2M18 12h2M6 9v6M18 9v6M8 12h8"></path>
+    </svg>
+    <span>Exercises</span>
+  </a>
+
+  <a routerLink="/store" routerLinkActive="tab-active" class="tab-item">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 18h16l-1.2-8-3.8 3-3-6-3 6-3.8-3L4 18z"></path>
+    </svg>
+    <span>Store</span>
+  </a>
+</nav>

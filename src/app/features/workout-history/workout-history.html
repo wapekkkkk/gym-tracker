@@ -1,40 +1,79 @@
-<h2>Workout history</h2>
+<div class="page">
+  <div class="history-header-row">
+    <span></span>
+    <button class="link-btn" type="button">Calendar</button>
+  </div>
 
-@if (sortedSessions().length === 0) {
-  <p><em>No completed sessions yet. Finish a workout to see it here.</em></p>
-} @else {
-  <ul class="session-list">
-    @for (session of sortedSessions(); track session.id) {
-      <li class="session-card">
-        <div class="session-summary" (click)="toggleExpanded(session.id)">
-          <strong>{{ session.name }}</strong>
-          <span>{{ session.date | date:'medium' }}</span>
-          <span>{{ session.entries.length }} exercise(s)</span>
-          <span>Volume: {{ sessionVolume(session) }}</span>
-          @if (session.sourceTemplateId) {
-            <span class="from-template-badge">From template</span>
-          }
-        </div>
+  <h1 class="page-title">History</h1>
 
-        @if (isExpanded(session.id)) {
-          <div class="session-detail">
-            @for (entry of session.entries; track entry.id) {
-              <div class="entry-detail">
-                <h4>{{ exerciseName(entry.exerciseId) }}</h4>
-                @if (entry.sets.length === 0) {
-                  <p><em>No sets logged.</em></p>
-                } @else {
-                  <ul>
-                    @for (set of entry.sets; track $index) {
-                      <li>{{ set.reps }} reps @ {{ set.weight }}{{ set.unit }}</li>
-                    }
-                  </ul>
+  @if (sortedSessions().length === 0) {
+    <p class="empty-hint">No completed sessions yet. Finish a workout to see it here.</p>
+  } @else {
+    @for (group of monthGroups(); track group.label) {
+      <h2 class="month-label">{{ group.label }}</h2>
+
+      <ul class="session-list">
+        @for (session of group.sessions; track session.id) {
+          <li class="card session-card">
+            <div class="session-card-head">
+              <span class="session-name">{{ session.name }}</span>
+              <button class="icon-pill icon-pill-sm" type="button" aria-label="More options">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="5" cy="12" r="1.6"></circle>
+                  <circle cx="12" cy="12" r="1.6"></circle>
+                  <circle cx="19" cy="12" r="1.6"></circle>
+                </svg>
+              </button>
+            </div>
+
+            <p class="session-date">{{ session.date | date:'EEEE, d MMM' }}</p>
+
+            <div class="session-stats" (click)="toggleExpanded(session.id)">
+              @if (formatDuration(session.durationSeconds); as duration) {
+                <span class="stat">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M12 7v5l3 3"></path>
+                  </svg>
+                  {{ duration }}
+                </span>
+              }
+              <span class="stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3a4 4 0 100 8 4 4 0 000-8zM4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"></path>
+                </svg>
+                {{ sessionVolume(session) }} kg
+              </span>
+              @if (session.prCount) {
+                <span class="stat">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 21h8M12 17v4M6 4h12v3a6 6 0 01-12 0V4zM6 6H4a2 2 0 002 2M18 6h2a2 2 0 01-2 2"></path>
+                  </svg>
+                  {{ session.prCount }} PRs
+                </span>
+              }
+              @if (session.sourceTemplateId) {
+                <span class="from-template-badge">From template</span>
+              }
+            </div>
+
+            @if (session.entries.length > 0) {
+              <div class="best-set-table">
+                <div class="best-set-header">
+                  <span>Exercise</span>
+                  <span>Best Set</span>
+                </div>
+                @for (entry of session.entries; track entry.id) {
+                  <div class="best-set-row">
+                    <span class="best-set-exercise">{{ entry.sets.length }} × {{ exerciseName(entry.exerciseId) }}</span>
+                    <span class="best-set-value">{{ bestSet(entry) ?? '—' }}</span>
+                  </div>
                 }
               </div>
             }
-          </div>
+          </li>
         }
-      </li>
+      </ul>
     }
-  </ul>
-}
+  }
+</div>
