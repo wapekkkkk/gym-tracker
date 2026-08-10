@@ -7,6 +7,7 @@ import { TemplateLibraryComponent } from './features/template-library/template-l
 import { WorkoutHistoryComponent } from './features/workout-history/workout-history';
 import { ProfileComponent } from './features/profile/profile';
 import { StoreComponent } from './features/store/store';
+import { ExerciseDetailComponent } from './features/exercise-detail/exercise-detail';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'session/start', pathMatch: 'full' },
@@ -18,4 +19,5 @@ export const routes: Routes = [
   { path: 'history', component: WorkoutHistoryComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'store', component: StoreComponent },
+  { path: 'exercises/:id', component: ExerciseDetailComponent },
 ];

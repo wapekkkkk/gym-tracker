@@ -1,0 +1,56 @@
+@if (exercise(); as ex) {
+  <div class="page">
+    <a routerLink="/exercises" class="icon-pill" aria-label="Back to exercises">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+    </a>
+
+    <div class="detail-header">
+      <div class="exercise-avatar detail-avatar" [style.background]="avatarColor(ex)">
+        {{ ex.name.charAt(0) }}
+      </div>
+      <div>
+        <h1 class="detail-name">{{ ex.name }}</h1>
+        <p class="detail-meta">{{ ex.muscleGroup }} · {{ ex.difficultyLevel }}</p>
+      </div>
+    </div>
+
+    <div class="card pb-card">
+      <p class="pb-label">Personal Best</p>
+      @if (personalBest(); as pb) {
+        <p class="pb-value">{{ pb.weight }} {{ pb.unit }} × {{ pb.reps }}</p>
+        <p class="pb-sub">Volume {{ pb.volume }} · set on {{ pb.achievedDate | date:'d MMM y' }}</p>
+      } @else {
+        <p class="pb-sub">No sets logged yet — finish a session with this exercise to set one.</p>
+      }
+    </div>
+
+    <h2 class="section-title history-title">History</h2>
+
+    @if (history().length === 0) {
+      <p class="empty-hint">No history yet for this exercise.</p>
+    } @else {
+      <ul class="history-list">
+        @for (row of history(); track row.sessionId) {
+          <li class="card history-row">
+            <div class="history-row-head">
+              <span class="history-session-name">{{ row.sessionName }}</span>
+              <span class="history-date">{{ row.date | date:'d MMM y' }}</span>
+            </div>
+            <div class="history-sets">
+              @for (set of row.sets; track $index) {
+                <span class="history-set-chip">{{ set.weight }} {{ set.unit }} × {{ set.reps }}</span>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+} @else {
+  <div class="page">
+    <p class="empty-hint">Exercise not found.</p>
+    <a routerLink="/exercises" class="pill-btn">Back to exercises</a>
+  </div>
+}

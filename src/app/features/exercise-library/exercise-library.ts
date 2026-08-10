@@ -2,6 +2,8 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WorkoutDataService } from '../../services/workout-data';
 import { Exercise } from '../../models/exercise';
+import { avatarColor } from '../../shared/exercise-avatar';
+import { RouterLink } from '@angular/router';
 
 interface RecentExercisePreview {
   exercise: Exercise;
@@ -12,7 +14,7 @@ interface RecentExercisePreview {
 
 @Component({
   selector: 'app-exercise-library',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './exercise-library.html',
   styleUrl: './exercise-library.css'
 })
@@ -96,12 +98,7 @@ export class ExerciseLibraryComponent {
     document.getElementById('letter-' + letter)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  avatarColor(exercise: Exercise): string {
-    const palette = ['#3b9eff', '#22d47b', '#ff9f43', '#ff5e7e', '#a684ff', '#4fd1c5'];
-    let hash = 0;
-    for (const char of exercise.muscleGroup) hash = (hash * 31 + char.charCodeAt(0)) % palette.length;
-    return palette[Math.abs(hash) % palette.length];
-  }
+  avatarColor = avatarColor;
 
   toggleNewForm() {
     this.showNewForm.update(v => !v);
