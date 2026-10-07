@@ -1,66 +1,113 @@
-<h2>Templates</h2>
+<div class="page">
+  <div class="page-header">
+    <a routerLink="/session/start" class="icon-pill" aria-label="Back to Start Workout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+    </a>
+  </div>
 
-<h3>Create a template</h3>
-<input
-  type="text"
-  placeholder="Template name"
-  [(ngModel)]="templateName"
-  name="templateName"
-/>
+  <h1 class="page-title">Templates</h1>
 
-<div class="draft-exercise-form">
-  <select [(ngModel)]="selectedExerciseId" name="draftExercise">
-    <option value="" disabled selected>Select an exercise</option>
-    @for (exercise of workoutData.exercises(); track exercise.id) {
-      <option [value]="exercise.id">{{ exercise.name }}</option>
+  <section>
+    <h2 class="section-label">Create a Template</h2>
+
+    <div class="form-card card">
+      <input
+        type="text"
+        placeholder="Template name"
+        [(ngModel)]="templateName"
+        name="templateName"
+      />
+
+      <div class="draft-exercise-grid">
+        <select [(ngModel)]="selectedExerciseId" name="draftExercise">
+          <option value="" disabled selected>Select an exercise</option>
+          @for (exercise of workoutData.exercises(); track exercise.id) {
+            <option [value]="exercise.id">{{ exercise.name }}</option>
+          }
+        </select>
+
+        <label class="draft-field">
+          Sets
+          <input type="number" [(ngModel)]="targetSets" name="targetSets" min="1" />
+        </label>
+
+        <label class="draft-field">
+          Reps
+          <input type="number" [(ngModel)]="targetReps" name="targetReps" min="1" />
+        </label>
+
+        <label class="draft-field">
+          Rest (s)
+          <input type="number" [(ngModel)]="restSeconds" name="restSecondsDraft" min="0" />
+        </label>
+      </div>
+
+      <button class="pill-btn draft-add-btn" type="button" (click)="addExerciseToDraft()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+        Add exercise to template
+      </button>
+    </div>
+
+    @if (draftExercises.length > 0) {
+      <ul class="draft-list">
+        @for (te of draftExercises; track $index) {
+          <li class="draft-row">
+            <div class="exercise-info">
+              <span class="exercise-name">{{ exerciseName(te.exerciseId) }}</span>
+              <span class="exercise-meta">{{ te.targetSets }}×{{ te.targetReps }}, {{ te.restSeconds }}s rest</span>
+            </div>
+            <button class="pending-remove" type="button" aria-label="Remove exercise" (click)="removeDraftExercise($index)">✕</button>
+          </li>
+        }
+      </ul>
+      <button class="btn-primary btn-block" type="button" (click)="saveTemplate()">Save template</button>
+    } @else {
+      <p class="empty-hint">Add at least one exercise before saving.</p>
     }
-  </select>
+  </section>
 
-  <label>
-    Sets
-    <input type="number" [(ngModel)]="targetSets" name="targetSets" min="1" />
-  </label>
+  <section class="your-templates-section">
+    <h2 class="section-title">Your Templates ({{ workoutData.templates().length }})</h2>
 
-  <label>
-    Reps
-    <input type="number" [(ngModel)]="targetReps" name="targetReps" min="1" />
-  </label>
-
-  <label>
-    Rest (s)
-    <input type="number" [(ngModel)]="restSeconds" name="restSecondsDraft" min="0" />
-  </label>
-
-  <button (click)="addExerciseToDraft()">Add exercise to template</button>
+    @if (workoutData.templates().length === 0) {
+      <p class="empty-hint">No templates yet.</p>
+    } @else {
+      <div class="template-grid">
+        @for (template of workoutData.templates(); track template.id) {
+          <div
+            class="template-card"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'Start ' + template.name"
+            (click)="startFromTemplate(template)"
+            (keydown.enter)="startFromTemplate(template)"
+          >
+            <div class="template-card-head">
+              <span class="template-name">{{ template.name }}</span>
+              <button
+                class="icon-pill icon-pill-sm"
+                type="button"
+                [attr.aria-label]="'Delete ' + template.name"
+                (click)="removeTemplate(template.id, $event)"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="5" cy="12" r="1.6"></circle>
+                  <circle cx="12" cy="12" r="1.6"></circle>
+                  <circle cx="19" cy="12" r="1.6"></circle>
+                </svg>
+              </button>
+            </div>
+            <p class="template-preview">{{ exercisePreview(template) }}</p>
+            @if (relativeTime(template.createdAt); as when) {
+              <p class="template-meta">{{ when }}</p>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
 </div>
-
-@if (draftExercises.length > 0) {
-  <ul class="draft-list">
-    @for (te of draftExercises; track $index) {
-      <li>
-        {{ workoutData.getExerciseName(te.exerciseId) }}
-        — {{ te.targetSets }}×{{ te.targetReps }}, {{ te.restSeconds }}s rest
-        <button (click)="removeDraftExercise($index)">✕</button>
-      </li>
-    }
-  </ul>
-  <button (click)="saveTemplate()">Save template</button>
-} @else {
-  <p><em>Add at least one exercise before saving.</em></p>
-}
-
-<h3>Your templates</h3>
-@if (workoutData.templates().length === 0) {
-  <p><em>No templates yet.</em></p>
-} @else {
-  <ul>
-    @for (template of workoutData.templates(); track template.id) {
-      <li>
-        <strong>{{ template.name }}</strong>
-        — {{ template.exercises.length }} exercise(s)
-        <button (click)="startFromTemplate(template)">Start session</button>
-        <button (click)="workoutData.removeTemplate(template.id)">Delete</button>
-      </li>
-    }
-  </ul>
-}

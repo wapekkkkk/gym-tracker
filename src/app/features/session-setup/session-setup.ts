@@ -3,6 +3,7 @@ import { RouterLink, Router } from '@angular/router';
 import { ActiveSessionService } from '../../services/active-session';
 import { WorkoutDataService } from '../../services/workout-data';
 import { Template } from '../../models/template';
+import { relativeTime } from '../../shared/relative-time';
 
 @Component({
   selector: 'app-session-setup',
@@ -37,11 +38,13 @@ export class SessionSetupComponent {
       .join(', ');
   }
 
-  relativeTime(iso: string | undefined): string {
-    if (!iso) return '';
-    const days = Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));
-    if (days <= 0) return 'Today';
-    if (days === 1) return '1 day ago';
-    return `${days} days ago`;
-  }
+    relativeTime = relativeTime;
+
+  // relativeTime(iso: string | undefined): string {
+  //   if (!iso) return '';
+  //   const days = Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));
+  //   if (days <= 0) return 'Today';
+  //   if (days === 1) return '1 day ago';
+  //   return `${days} days ago`;
+  // }
 }

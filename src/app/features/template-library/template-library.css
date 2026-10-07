@@ -1,0 +1,57 @@
+.page-header {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: var(--space-2);
+}
+
+.draft-exercise-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.draft-exercise-grid select {
+  grid-column: 1 / -1;
+}
+
+.draft-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.draft-add-btn {
+  justify-content: center;
+}
+
+.draft-list {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.draft-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pending-remove {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  font-size: 15px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.your-templates-section {
+  margin-top: var(--space-6);
+}

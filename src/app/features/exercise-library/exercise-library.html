@@ -13,7 +13,7 @@
   <h1 class="page-title">Exercises</h1>
 
   @if (showNewForm()) {
-  <form class="new-exercise-form card" (ngSubmit)="addExercise()">
+  <form class="form-card card" (ngSubmit)="addExercise()">
     <input type="text" placeholder="Exercise name" [(ngModel)]="newExerciseName" name="exerciseName" />
     <select [(ngModel)]="newExerciseMuscleGroup" name="muscleGroup">
       <option value="" disabled selected>Select muscle group</option>

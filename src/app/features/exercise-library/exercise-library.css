@@ -14,22 +14,6 @@
   cursor: pointer;
 }
 
-.new-exercise-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  margin-bottom: var(--space-5);
-}
-
-.new-exercise-form input,
-.new-exercise-form select {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-control);
-  padding: 12px 14px;
-  color: var(--color-text-primary);
-  font-size: 16px;
-}
 
 .search-bar {
   display: flex;

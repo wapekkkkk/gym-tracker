@@ -1,13 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { WorkoutDataService } from '../../services/workout-data';
 import { ActiveSessionService } from '../../services/active-session';
 import { Template, TemplateExercise } from '../../models/template';
+import { relativeTime } from '../../shared/relative-time';
 
 @Component({
   selector: 'app-template-library',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './template-library.html',
   styleUrl: './template-library.css'
 })
@@ -16,12 +17,14 @@ export class TemplateLibraryComponent {
   private activeSession = inject(ActiveSessionService);
   private router = inject(Router);
 
+  relativeTime = relativeTime;
+
   templateName = '';
   draftExercises: TemplateExercise[] = [];
 
   selectedExerciseId = '';
   targetSets = 3;
-  targetReps = 20;
+  targetReps = 10;
   restSeconds = 90;
 
   addExerciseToDraft() {
@@ -44,6 +47,10 @@ export class TemplateLibraryComponent {
     this.draftExercises.splice(index, 1);
   }
 
+  exerciseName(exerciseId: string): string {
+    return this.workoutData.getExerciseName(exerciseId);
+  }
+
   saveTemplate() {
     if (!this.templateName.trim() || this.draftExercises.length === 0) return;
 
@@ -55,5 +62,16 @@ export class TemplateLibraryComponent {
   startFromTemplate(template: Template) {
     this.activeSession.startFromTemplate(template.name, template);
     this.router.navigate(['/session/active']);
+  }
+
+  removeTemplate(templateId: string, event: Event) {
+    event.stopPropagation();
+    this.workoutData.removeTemplate(templateId);
+  }
+
+  exercisePreview(template: Template): string {
+    return template.exercises
+      .map(te => this.workoutData.getExerciseName(te.exerciseId))
+      .join(', ');
   }
 }
