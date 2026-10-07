@@ -41,6 +41,7 @@ pendingSets: Record<string, PendingSet[]> = {};
     this.showExercisePicker.set(false);
   }
 
+  
   restingEntryId = signal<string | null>(null);
   secondsRemaining = signal(0);
   private timerHandle: ReturnType<typeof setInterval> | null = null;
